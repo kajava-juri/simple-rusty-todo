@@ -38,47 +38,21 @@ pub struct Todo {
     db: Database,
 }
 
-impl Todo {
-    // Takes an object that implements an Iterator that iterates over Strings
-    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Todo, String> {
-        // Parse the command line arguments for program options
-        args.next(); // skip the program name
-        let command = match args.next() {
-            Some(command) => command,
-            None => return Err("No command provided".to_owned()),
-        };
+trait Command {
+    fn parse(args: impl Iterator<Item = String>) -> Result<TodoOperation, String>;
+}
 
-        let db = Database::init().map_err(|err| format!("Problem initializing the database: {}", err))?;
-
-        // Parse the command line arguments for the command
-        let operation = match command.as_str() {
-            "list" => Self::parse_list_command(args)?,
-            "add" => Self::parse_add_command(args)?,
-            "remove" => Self::parse_remove_command(args)?,
-            _ => return Err(format!("Invalid command '{}'", command)),
-        };
-
-        let options = TodoOptions { 
-            operation 
-        };
-
-        Ok(Todo {
-            items: vec![],
-            options,
-            db,
-        })
-    }
-
-    // TODO: maybe get rid of command specific parsing functions?
-
-    fn parse_list_command(args: impl Iterator<Item = String>) -> Result<TodoOperation, String> {
+impl Command for ListOperation {
+    fn parse(args: impl Iterator<Item = String>) -> Result<TodoOperation, String> {
         if args.count() > 0 {
             return Err("List command does not take any parameters".to_owned());
         }
         Ok(TodoOperation::List(ListOperation))
     }
+}
 
-    fn parse_add_command(mut args: impl Iterator<Item = String>) -> Result<TodoOperation, String> {
+impl Command for AddOperation {
+    fn parse(mut args: impl Iterator<Item = String>) -> Result<TodoOperation, String> {
         let todo_title = match args.next() {
             Some(parameter) => parameter,
             None => return Err("No parameter provided for add command".to_owned()),
@@ -93,8 +67,10 @@ impl Todo {
             title: todo_title 
         }))
     }
+}
 
-    fn parse_remove_command(mut args: impl Iterator<Item = String>) -> Result<TodoOperation, String> {
+impl Command for RemoveOperation {
+    fn parse(mut args: impl Iterator<Item = String>) -> Result<TodoOperation, String> {
         
         let to_remove = match args.next() {
             Some(parameter) => match parameter.parse::<i64>() {
@@ -107,6 +83,38 @@ impl Todo {
         Ok(TodoOperation::Remove(RemoveOperation { 
             id: to_remove 
         }))
+    }
+}
+
+impl Todo {
+    // Takes an object that implements an Iterator that iterates over Strings
+    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Todo, String> {
+        // Parse the command line arguments for program options
+        args.next(); // skip the program name
+        let command = match args.next() {
+            Some(command) => command,
+            None => return Err("No command provided".to_owned()),
+        };
+
+        let db = Database::init().map_err(|err| format!("Problem initializing the database: {}", err))?;
+
+        // Parse the command line arguments for the command
+        let operation = match command.as_str() {
+            "list" => ListOperation::parse(args)?,
+            "add" => AddOperation::parse(args)?,
+            "remove" => RemoveOperation::parse(args)?,
+            _ => return Err(format!("Invalid command '{}'", command)),
+        };
+
+        let options = TodoOptions { 
+            operation 
+        };
+
+        Ok(Todo {
+            items: vec![],
+            options,
+            db,
+        })
     }
 
     pub fn execute(&self) -> Result<(), String> {
