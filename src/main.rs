@@ -1,7 +1,7 @@
 use std::{env, process};
 use simple_rusty_todo::Todo;
 mod db;
-use db::models::Todo_model;
+use db::models::TodoModel;
 use simple_rusty_todo::TodoOperation;
 
 fn main() {
@@ -27,16 +27,18 @@ fn main() {
                 process::exit(1);
             });
         }
-        TodoOperation::Add => {
-            let todo = Todo_model {
-                title: todo.parameter,
+        TodoOperation::Add(parameter) => {
+            let todo = TodoModel {
+                id: 0, // Placeholder, will be set in add_todo
+                title: parameter,
                 description: "No description".to_owned(),
                 completed: false,
             };
-            db.add_todo(todo).unwrap_or_else(|err| {
+            let inserted_todo = db.add_todo(todo).unwrap_or_else(|err| {
                 eprintln!("Problem adding todo: {}", err);
                 process::exit(1);
             });
+            println!("Added todo with ID: {}", inserted_todo.id);
         }
         TodoOperation::Remove => {
             println!("Remove");

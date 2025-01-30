@@ -1,18 +1,16 @@
-
 #[derive(Debug)]
 pub enum TodoOperation {
     List,
-    Add,
+    Add(String),
     Remove,
 }
 pub struct TodoOptions {
     pub operation: TodoOperation,
-    pub parameter: String,
 }
 
 pub struct Todo {
     pub items: Vec<String>,
-    pub options: TodoOptions
+    pub options: TodoOptions,
 }
 
 impl Todo {
@@ -20,31 +18,56 @@ impl Todo {
     pub fn build(mut args: impl Iterator<Item = String>) -> Result<TodoOptions, String> {
         args.next(); // skip the program name
         let command = match args.next() {
-            Some(command) => Todo::match_command(command)?,
+            Some(command) => command,
             None => return Err("No command provided".to_owned()),
         };
 
-        // TODO: Change parameter parsing, list does not need a parameter
 
-        let parameter = match args.next() {
+        match command.as_str() {
+            "list" => Self::list(args),
+            "add" => Self::add(args),
+            "remove" => Self::remove(args),
+            _ => Err(format!("Invalid command '{}'", command)),
+        }
+    }
+
+    fn list(args: impl Iterator<Item = String>) -> Result<TodoOptions, String> {
+        if args.count() > 0 {
+            return Err("List command does not take any parameters".to_owned());
+        }
+
+        Ok(TodoOptions {
+            operation: TodoOperation::List,
+        })
+    }
+
+    fn add(mut args: impl Iterator<Item = String>) -> Result<TodoOptions, String> {
+
+        let todo_title = match args.next() {
+            Some(parameter) => parameter,
+            None => return Err("No parameter provided".to_owned()),
+        };
+
+
+        match args.next() {
+            Some(_) => return Err("Add command only takes one parameter".to_owned()),
+            None => (),
+        }
+
+        Ok(TodoOptions {
+            operation: TodoOperation::Add(todo_title),
+        })
+    }
+
+    fn remove(mut args: impl Iterator<Item = String>) -> Result<TodoOptions, String> {
+        
+        let to_remove = match args.next() {
             Some(parameter) => parameter,
             None => return Err("No parameter provided".to_owned()),
         };
 
         Ok(TodoOptions {
-            operation: command,
-            parameter,
+            operation: TodoOperation::Remove,
         })
-    }
-
-    
-
-    fn match_command(command: String) -> Result<TodoOperation, String> {
-        match command.as_str() {
-            "list" => Ok(TodoOperation::List),
-            "add" => Ok(TodoOperation::Add),
-            "remove" => Ok(TodoOperation::Remove),
-            _ => Err(format!("Invalid command '{}'", command)),
-        }
     }
 }
