@@ -55,5 +55,11 @@ impl Database {
         Ok(())
     }
 
+    #[allow(dead_code)]
+    #[warn(unused_variables)]
+    pub fn update_todo(&self,_updated_todo: TodoModel) -> Result<(), mongodb::error::Error> {
+        unimplemented!()
+    }
+
 }
 

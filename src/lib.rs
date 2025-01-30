@@ -1,9 +1,7 @@
 mod db;
-use std::ops::Add;
-
+mod tests;
 use db::Database;
 use db::models::TodoModel;
-use mongodb::options;
 
 #[derive(Debug)]
 struct ListOperation;
@@ -16,11 +14,13 @@ struct RemoveOperation {
     id: i64,
 }
 
+#[allow(dead_code)]
 struct UpdateOperation {
     id: i64,
     new_item: String,
 }
 
+#[allow(dead_code)]
 enum TodoOperation {
     List(ListOperation),
     Add(AddOperation),
@@ -28,7 +28,7 @@ enum TodoOperation {
     Update(UpdateOperation),
 }
 
-struct TodoOptions {
+pub struct TodoOptions {
     operation: TodoOperation,
 }
 
