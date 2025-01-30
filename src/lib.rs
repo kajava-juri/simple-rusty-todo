@@ -28,7 +28,7 @@ impl Todo {
             None => return Err("No command provided".to_owned()),
         };
 
-        let db = Database::init().expect("Failed to initialize database");
+        let db = Database::init().map_err(|err| format!("Problem initializing the database: {}", err))?;
 
         let options = match command.as_str() {
             "list" => Self::parse_list_command(args)?,
