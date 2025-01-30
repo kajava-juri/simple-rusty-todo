@@ -86,17 +86,17 @@ impl Todo {
 
     pub fn execute(&self) -> Result<(), String> {
         match self.options.operation {
-            TodoOperation::List => self.execute_list(),
-            TodoOperation::Add(ref parameter) => self.execute_add(parameter),
-            TodoOperation::Remove(parameter) => self.execute_remove(parameter),
+            TodoOperation::List => self.list(),
+            TodoOperation::Add(ref parameter) => self.add(parameter),
+            TodoOperation::Remove(parameter) => self.remove(parameter),
         }
     }
 
-    fn execute_list(&self) -> Result<(), String> {
+    fn list(&self) -> Result<(), String> {
         self.db.list_todos().map_err(|err| format!("Problem listing todos: {}", err))
     }
 
-    fn execute_add(&self, parameter: &String) -> Result<(), String> {
+    fn add(&self, parameter: &String) -> Result<(), String> {
         let todo = TodoModel {
             id: 0, // Placeholder, will be set in add_todo
             title: parameter.clone(),
@@ -108,7 +108,7 @@ impl Todo {
         Ok(())
     }
 
-    fn execute_remove(&self, parameter: i64) -> Result<(), String> {
+    fn remove(&self, parameter: i64) -> Result<(), String> {
         self.db.remove_todo(parameter).map_err(|err| format!("Problem removing todo: {}", err))?;
         Ok(())
     }
