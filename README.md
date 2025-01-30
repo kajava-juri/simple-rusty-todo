@@ -10,7 +10,7 @@ For persistent data a JSON-like and document-oriented MongoDB is used
 
 MongoDB must be installed to use it
 
-[Community Server] (https://www.mongodb.com/try/download/community)
+[Community Server](https://www.mongodb.com/try/download/community)
 
 # usage
 ```
