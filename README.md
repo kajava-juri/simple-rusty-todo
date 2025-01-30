@@ -1,6 +1,8 @@
 # rusty-todo
 A classic program that was made to learn Rust programming language
+
 Idea was to write a clean code that is pleasant to read and understand
+
 Code contains as many Rust features that I learned as of writing this and made sense to use
 
 # Database
