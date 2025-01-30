@@ -1,6 +1,6 @@
 use mongodb::sync::{Client, Collection, Cursor};
 pub mod models;
-use models::*;
+use models::{TodoModel, Counter, get_next_id};
 
 pub struct Database {
     pub client: Client,
@@ -8,7 +8,10 @@ pub struct Database {
 
 impl Database {
     pub fn init() -> Result<Self, mongodb::error::Error> {
-        let client: Client = Client::with_uri_str("mongodb://localhost:27017")?;
+        let client: Client = Client::with_uri_str("mongodb://localhost:27017").unwrap_or_else(|err| {
+            eprintln!("Failed to initialize database client: {}", err);
+            std::process::exit(1);
+        });
         Ok(Database { client })
     }
 
@@ -42,4 +45,15 @@ impl Database {
         Ok(())
     }
 
+    pub fn remove_todo(&self, id: i64) -> Result<(), mongodb::error::Error> {
+        let todo_collection: Collection<TodoModel> = self.client
+            .database("rusty_todo")
+            .collection::<TodoModel>("todos");
+
+        let _: mongodb::results::DeleteResult = todo_collection.delete_one(mongodb::bson::doc! { "id": id }).run()?;
+
+        Ok(())
+    }
+
 }
+
