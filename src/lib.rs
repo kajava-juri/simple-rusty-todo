@@ -44,6 +44,13 @@ impl Todo {
         })
     }
 
+    // TODO: get rid of command specific parsing functions
+
+    // fn parse_command(args: impl Iterator<Item = String>, op: TodoOperation) -> Result<Vec<String>, String> {
+    //     let params: Vec<String> = args.collect();
+
+    // }
+
     fn parse_list_command(args: impl Iterator<Item = String>) -> Result<TodoOptions, String> {
         if args.count() > 0 {
             return Err("List command does not take any parameters".to_owned());
